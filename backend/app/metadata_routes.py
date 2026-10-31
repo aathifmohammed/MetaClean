@@ -6,7 +6,7 @@ from fastapi.responses import StreamingResponse
 from PIL import Image, ImageDraw
 from pymongo.database import Database
 
-from app.activity import record_activity
+from app.activity import record_activity as save_activity
 from app.auth import get_db, optional_user
 from app.image_cleaner import (
     FORMAT_SETTINGS,
@@ -27,7 +27,7 @@ _logger = logging.getLogger(__name__)
 @router.post("/check", response_model=MetadataCheckResponse)
 async def check_metadata(
     file: UploadFile = File(...),
-    record_activity: bool = Form(True),
+    should_record_activity: bool = Form(True, alias="record_activity"),
     user: dict | None = Depends(optional_user),
     db: Database | None = Depends(get_db),
 ):
@@ -35,9 +35,9 @@ async def check_metadata(
         image_data = await read_and_validate_image(file)
         result = extract_metadata(image_data)
 
-        if record_activity and user is not None and db is not None:
+        if should_record_activity and user is not None and db is not None:
             try:
-                record_activity(
+                save_activity(
                     db,
                     str(user["_id"]),
                     "check_metadata",
@@ -72,16 +72,14 @@ async def clean_metadata(
     else:
         cleaned_bytes = clean_all_metadata(image_data["contents"], image_data["format"])
 
-    marker_count = extract_metadata(image_data).ai_marker_count
-
     if user is not None and db is not None:
         try:
-            record_activity(
+            save_activity(
                 db,
                 str(user["_id"]),
                 f"clean_{mode.value}",
                 image_data["filename"],
-                marker_count,
+                None,
             )
         except Exception:
             _logger.exception("Failed to record image-clean activity")

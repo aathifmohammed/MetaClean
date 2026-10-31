@@ -53,7 +53,7 @@ export default function ActivityScreen(props) {
                               <td className="filename-cell">
                                 <FileImage size={16} />{row.filename}
                               </td>
-                              <td>{row.marker_count}</td>
+                              <td>{row.marker_count ?? '—'}</td>
                               <td>{formatDate(row.created_at)}</td>
                             </tr>
                           ))}
