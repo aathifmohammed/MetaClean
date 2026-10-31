@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+pymongo
+python-dotenv
+dnspython
+python-multipart
+Pillow
+pytest
+google-auth
+requests
+boto3
+c2pa-python
+httpx
