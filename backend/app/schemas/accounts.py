@@ -10,7 +10,7 @@ class UserResponse(BaseModel):
 class ActivityResponse(BaseModel):
     operation: str
     filename: str
-    marker_count: int = Field(ge=0)
+    marker_count: int | None = Field(default=None, ge=0)
     created_at: datetime
 
 class EndpointCreate(BaseModel):
